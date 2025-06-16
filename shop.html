@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chekio Market</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+    }
+
+    header {
+      background-color: #333;
+      padding: 10px 0;
+      color: white;
+      text-align: center;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #444;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    .cart-icon {
+      position: relative;
+      cursor: pointer;
+      color: white;
+    }
+
+    .cart-icon::after {
+      content: attr(data-count);
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .product img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .product button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .product button:hover {
+      background-color: #218838;
+    }
+
+    .cart-dashboard {
+      position: fixed;
+      right: 20px;
+      top: 70px;
+      background: white;
+      width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+      z-index: 100;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      margin-right: 10px;
+      border-radius: 6px;
+    }
+
+    .cart-item-details {
+      flex-grow: 1;
+    }
+
+    .cart-item button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .cart-item button:hover {
+      background-color: #c82333;
+    }
+
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      margin-top: 20px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 100px auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .modal-content img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Chekio Market</h1>
+  </header>
+
+  <nav>
+    <div>
+      <a href="/home.html">Home</a>
+      <a href="/shop.html">Shop</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="cart-icon" onclick="toggleCart()" data-count="0" id="cart-count">🛒</div>
+    
+  </nav>
+
+  <div class="container">
+    <h2>Featured Products</h2>
+    <div class="products" id="product-list"></div>
+  </div>
+
+  <div class="cart-dashboard" id="cart-dashboard">
+    <h3>Your Cart</h3>
+    <div id="cart-items"></div>
+  </div>
+
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img id="modalImg" src="" alt="">
+      <h3 id="modalTitle"></h3>
+      <p id="modalDesc"></p>
+      <button id="addToCartBtn">Add to Cart</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Chekio Market. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const products = [{
+        name: 'gold cretian',
+        desc: 'energy and orignal.',
+        img: 'gold creatine.jpg' 
+      },
+      {
+        name: 'whey brotein.',
+        desc: '100 grams of portein orignal.',
+        img: 'whey protine.jpg'
+      },
+      {
+        name: 'serious mass',
+        desc: '100 grams of portein orignal.',
+        img: 'seriose mass.jpg'
+      },
+      {
+        name: 'pre wrok out',
+        desc: 'more energy .',
+        img: 'pre wrok out.jpg'
+      },
+      {
+        name: 'slimming belt',
+        desc: '1pc Men Sports Sauna Thermal Compression Vest, Workout Waist Trainer Tummy Trimmer, .',
+        img: 'slimming belt.jpg'
+      },
+      {
+        name: 't.shirt',
+        desc: 'cool and style .',
+        img: 't.shirt.jpg'
+      },
+      {
+        name: 'lino shrits',
+        desc: 'cool and style.',
+        img: 'lino shrits.jpg'
+      },
+      {
+        name: 'lino pants',
+        desc: 'cool and style.',
+        img: 'lino pants.jpg'
+      },
+      {
+       name: 'adidas samba',
+        desc: 'sports and fit.',
+        img: 'adidas samba.jpg'
+      },
+      {
+        name: 'adidas campus',
+        desc: 'fit  and style.',
+        img: 'adidas campus.jpg'
+      },
+      {
+         name: 'LEATHER JAKET',
+        desc: 'beutifull and style.',
+        img: 'LEATHER JAKET.jpg'
+      },
+      {
+        name: 'blue shrit',
+        desc: ' confertble and fitt.',
+        img: 'blue shrit.jpg'
+
+      },
+      {
+         name: 'white shirt',
+        desc: ' confertble and fitt.',
+        img: 'white shirt.jpg'
+      },
+      {
+         name: 'black shirt',
+        desc: ' confertble and fitt.',
+        img: 'black shirt.jpg'
+      },
+        {
+         name: 'jeans jaket',
+        desc: ' confertble and fitt.',
+        img: 'jeans jaket.jpg'
+      },
+        {
+         name: 'jeans',
+        desc: ' confertble and fitt.',
+        img: 'jeans.jpg'
+      },
+        {
+         name: 'casio',
+        desc: ' confertble and fitt.',
+        img: 'casio.jpg'
+      },
+        {
+         name: 'patrick philip',
+        desc: 'confertble and fitt .',
+        img: 'patrick philip.jpg'
+      },
+        {
+         name: 'devonsi',
+        desc: ' confertble and fitt.',
+        img: 'devonsi.jpg'
+      },
+        {
+         name: 'patrick philip leather',
+        desc: ' confertble and fitt.',
+        img: 'patrick philip leather.jpg'
+      },
+        {
+         name: 'peodegar',
+        desc: ' confertble and fitt.',
+        img: 'peodegar.jpg'
+      },
+        {
+         name: 'peodegar leather',
+        desc: ' confertble and fitt.',
+        img: 'peodegar leather.jpg'
+      },
+      {
+         name: 'balck arbian',
+        desc: ' confertble and fitt.',
+        img: 'balck arbian.jpg'
+      },
+      {
+         name: 'small fan',
+        desc: ' cool and samll .',
+        img: 'small fan.jpg'
+      },
+      {
+         name: 'tomi',
+        desc: 'confertble and fitt .',
+        img: 'tomi (2).jpg'
+      },
+      {
+         name: 'tomi',
+        desc: 'confertble and fitt .',
+        img: 'tomi.jpg'
+      },
+      {
+         name: 'tomi leather',
+        desc: 'confertble and fitt.',
+        img: 'tomi leather.jpg'
+      },
+      {
+         name: 'rolex',
+        desc: 'confertble and fitt.',
+        img: 'rolex.jpg'
+      }
+
+      
+            
+    ];
+
+    const cart = [];
+    const productList = document.getElementById('product-list');
+    const cartCount = document.getElementById('cart-count');
+    const cartItems = document.getElementById('cart-items');
+    const cartDashboard = document.getElementById('cart-dashboard');
+
+    const modal = document.getElementById('productModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+
+    let currentProductIndex = 0;
+
+    // Render product list
+    products.forEach((product, index) => {
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.innerHTML = `
+        <img src="${product.img}" alt="${product.name}" onclick="showProduct(${index})">
+        <h3>${product.name}</h3>
+        <p>${product.desc}</p>
+        <button onclick="showProduct(${index})">View</button>
+      `;
+      productList.appendChild(div);
+    });
+
+    function showProduct(index) {
+      currentProductIndex = index;
+      const product = products[index];
+      modalImg.src = product.img;
+      modalTitle.textContent = product.name;
+      modalDesc.textContent = product.desc;
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    addToCartBtn.addEventListener('click', () => {
+      cart.push(products[currentProductIndex]);
+      cartCount.setAttribute('data-count', cart.length);
+      renderCart();
+      closeModal();
+    });
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+      cart.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <img src="${item.img}" alt="${item.name}">
+          <div class="cart-item-details">
+            <h4>${item.name}</h4>
+            <p>${item.desc}</p>
+          </div>
+          <button onclick="removeFromCart(${i})">Remove</button>
+        `;
+        cartItems.appendChild(div);
+      });
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      cartCount.setAttribute('data-count', cart.length);
+      renderCart();
+    }
+
+    function toggleCart() {
+      cartDashboard.style.display = cartDashboard.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+
+</body>
+</html>

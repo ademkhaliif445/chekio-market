@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>chekio market</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo-container">
+      <img src="/logo2.jpg"alt="Chekio Market Logo">
+      <span>chekio market</span>
+    </div>
+    <ul>
+      <li><a href="/home.html" title="go home">Home</a></li>
+      <li><a href="/shop.html" title="go and shop now">Shop</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><a href="/sign up .html" title="sign up now">sign up</a></li>
+    </ul>
+    <div class="cart-icon" onclick="toggleCart()">
+      🛒 <span id="cart-count">0</span>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Welcome to chekio market</h1>
+    <p>Your one-stop shop for all things tech!</p>
+  </section>
+
+  <section class="section">
+    <h2>Featured Products</h2>
+    <div class="products" id="product-list">
+      <!-- Products will be dynamically injected here -->
+    </div>
+  </section>
+
+  <section id="cart-dashboard" style="display: none;">
+    <h2>Your Cart</h2>
+    <div id="cart-items">
+      <!-- Cart items will be dynamically rendered here -->
+    </div>
+  </section>
+
+  <footer>
+    <textarea placeholder="*COMMENT"></textarea>
+    <p>&copy; 2025 chekio market. All rights reserved.</p>
+  </footer>
+  <script src="/home.js"></script>
+</body>
+</html>

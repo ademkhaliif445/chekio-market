@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>chekio market - Register/Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .auth-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background-color: #ddd;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .tabs button.active {
+      background-color: #007BFF;
+      color: white;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .form-group input:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-container">
+  <div class="tabs">
+    <button id="signupTab" class="active" onclick="toggleForm('signup')">Sign Up</button>
+    <button id="loginTab" onclick="toggleForm('login')">Login</button>
+  </div>
+
+  <!-- Sign Up Form -->
+  <form id="signupForm" onsubmit="return handleSignup(event)">
+    <div class="form-group">
+      <label for="signupName">Full Name</label>
+      <input type="text" placeholder="*name" id="signupName" required>
+      <div class="error" id="signupNameError"></div>
+    </div>
+    <div class="form-group">
+      <label for="signupEmail">Email</label>
+      <input type="email" placeholder="*email" id="signupEmail" required>
+      <div class="error" id="signupEmailError"></div>
+    </div>
+    <div class="form-group">
+      <label for="signupPassword">Password</label>
+      <input type="password" placeholder="*password" id="signupPassword" required>
+      <div class="error" id="signupPasswordError"></div>
+    </div>
+    <button class="btn-submit" type="submit">Register</button>
+    <div class="success" id="signupSuccess"></div>
+  </form>
+
+  <!-- Login Form -->
+  <form id="loginForm" style="display:none;" onsubmit="return handleLogin(event)">
+    <div class="form-group">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" required>
+      <div class="error" id="loginEmailError"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" required>
+      <div class="error" id="loginPasswordError"></div>
+    </div>
+
+    <button class="btn-submit" type="submit">Login</button>
+    <div class="success" id="loginSuccess"></div>
+  </form>
+</div>
+
+<script>
+  function toggleForm(formType) {
+    const signupForm = document.getElementById("signupForm");
+    const loginForm = document.getElementById("loginForm");
+    const signupTab = document.getElementById("signupTab");
+    const loginTab = document.getElementById("loginTab");
+
+    if (formType === "signup") {
+      signupForm.style.display = "block";
+      loginForm.style.display = "none";
+      signupTab.classList.add("active");
+      loginTab.classList.remove("active");
+    } else {
+      signupForm.style.display = "none";
+      loginForm.style.display = "block";
+      signupTab.classList.remove("active");
+      loginTab.classList.add("active");
+    }
+  }
+
+  function handleSignup(event) {
+    event.preventDefault();
+
+    document.getElementById("signupNameError").innerText = "";
+    document.getElementById("signupEmailError").innerText = "";
+    document.getElementById("signupPasswordError").innerText = "";
+    document.getElementById("signupSuccess").innerText = "";
+
+    const name = document.getElementById("signupName").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
+
+    let valid = true;
+
+    if (name.length < 2 place) {
+      document.getElementById("signupNameError").innerText = "Enter a valid name.";
+      valid = false;
+    }
+
+    const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+    if (!emailPattern.test(email)) {
+      document.getElementById("signupEmailError").innerText = "Invalid email format.";
+      valid = false;
+    }
+
+    if (password.length < 6) {
+      document.getElementById("signupPasswordError").innerText = "Password must be at least 6 characters.";
+      valid = false;
+    }
+
+    if (valid) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      if (users.some(user => user.email === email)) {
+        document.getElementById("signupEmailError").innerText = "Email already registered.";
+        return false;
+      }
+
+      users.push({ name, email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      document.getElementById("signupSuccess").innerText = "Registration successful! You can now login.";
+      document.getElementById("signupForm").reset();
+    }
+
+    return false;
+  }
+
+  function handleLogin(event) {
+    event.preventDefault();
+
+    document.getElementById("loginEmailError").innerText = "";
+    document.getElementById("loginPasswordError").innerText = "";
+    document.getElementById("loginSuccess").innerText = "";
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+      document.getElementById("loginSuccess").innerText = Welcome back, ${user.name}!;
+      document.getElementById("loginForm").reset();
+      // Optional: redirect after successful login
+      // window.location.href = "shop.html";
+    } else {
+      document.getElementById("loginPasswordError").innerText = "Invalid email or password.";
+    }
+
+    return false;
+  }
+</script>
+
+</body>
+</html>
